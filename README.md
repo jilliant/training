@@ -1,154 +1,14 @@
-# training
-
-
-#######################################################################
-# Data Analysis for Fraud and Anomaly Detection in Forensics Security #
-# Alces Ronin Presciient Pty Ltd 2013                                 #
-# Examples:                                                           #
-# - Predictive Methods - Residual Analysis                            #
-# - Predictive Methods - Overfitting                                  #
-# - Outlier Detection - Distributions                                 #
-# - Outlier Detection - K Means                                       #
-# - Outlier Detection - Random Forest                                 #
-# - Social Network Analysis                                           #
-#######################################################################
-
-
-# EXAMPLE
-# Predictive Methods - Residual Analysis
+# t Analysis
 expenses <- read.csv('Expenses.csv')
 summary(expenses)
 
 # To run a linear model use
 exp.model <- lm(formula=Expenses ~ Department + Level + Location + Hours_Worked, data=expenses)
-summary(exp.model)
-
-RF <- randomForest(expenses[,2:5], expenses$Expenses,do.trace=T,importance=T)
-
-summary(exp.model)
-
-# To get rid of the intercept term include -1 in the formula
-exp.model.no.inter <- lm(formula=Expenses ~ Department + Level + Location + Hours_Worked - 1, data=expenses)
-summary(exp.model.no.inter)
-anova(exp.model.no.inter)
-
-# Attach the fitted values and the residuals to the main data set
-expenses.pred <- cbind(expenses,exp.model.no.inter$fitted.values, exp.model.no.inter$residuals)
-
-expenses.RF <-cbind(expenses,exp.model.no.inter$fitted.values, exp.model.no.inter$residuals)
-
-a<-expenses.RF[order(expenses.RF[,8],decreasing=T),]
-
-
-
-
-
-
-# Order the data set by the residuals (column 8) in descending order . 
-expenses.pred[order(-abs(expenses.pred[,8])),]
-
-#######################################################################
-
-# EXAMPLE
-# Predictive Methods - Overfitting
-install.packages(ggplot2)
-library(ggplot2)
-bonus_ofit <- read.csv('bonus_overfit.csv')
-x <- bonus_ofit[,2]
-y <- bonus_ofit[,3]
-
-# specify the maximum polynomial degree that will be explored
-max.poly <- 20
-
-# cretaing data.frame which will store model predictions
-# that will be used for the smooth curves in Fig. 1
-x.new <- seq(min(x), max(x), length.out=100)
-degree <- rep(1:max.poly, each=length(x.new))
-predicted <- numeric(length(x.new)*max.poly)
-new.dat <- data.frame(x=rep(x.new, times=max.poly),
-                      degree,
-                      predicted)
-
-# fitting lm() polynomials of increasing complexity
-# (up to max.degree) and storing their predictions
-# in the new.dat data.frame
-for(i in 1:max.poly)
-{
-  sub.dat <- new.dat[new.dat$degree==i,]
-  new.dat[new.dat$degree==i,3] <- predict(lm(y~poly(x, i)),
-                                          newdata=data.frame(x=x.new))
-}
-
-# plotting the data and the fitted models
-p <- ggplot()
-p + geom_point(aes(bonus_ofit$x, bonus_ofit$y), bonus_ofit, colour="darkgrey") +
-  xlab('Income') + ylab('Bonus') +
- geom_line(aes(x, predicted,
-                  colour=as.character(degree)),
-              new.dat[new.dat$degree %in% c(20),]) +
- scale_colour_discrete(name = "Degree")
-
-# function that will perform the "leave one out"
-# crossvalidation for a y~poly(x, degree) polynomial
-crossvalidate <- function(x, y, degree)
-{
-  preds <- numeric(length(x))
-  for(i in 1:length(x))
-  {
-    x.in <- x[-i]
-    x.out <- x[i]
-    y.in <- y[-i]
-    y.out <- x[i]
-    m <- lm(y.in ~ poly(x.in, degree=degree) )
-    new <- data.frame(x.in = seq(-3, 3, by=0.1))
-    preds[i]<- predict(m, newdata=data.frame(x.in=x.out))
-  }
-  # the squared error:
-  return(sum((y-preds)^2))
-}
-
-# crossvalidating all of the polynomial models
-# and storing their squared errors in
-# the "a" object
-a <- data.frame(cross=numeric(max.poly))
-for(i in 1:max.poly)
-{
-  a[i,1] <- crossvalidate(bonus_ofit$x, bonus_ofit$y, degree=i)
-}
-
-# plotting crossvalidated squared errors agains
-# model complexity
-cross.plot <- qplot(1:max.poly,cross, data=a, geom=c("line"))+
-  xlab("Degree") +
-  ylab("Squared error") +
-  labs(title="Crossvalidation")
-cross.plot
-
-#######################################################################
-
-# EXAMPLE
-# Outlier Detection - Distributions
-
-income.distributions <- read.csv(file='Distributions.csv') 
-
-# Then plot the data using
-
-boxplot(income.distributions$Income_norm)
-hist(income.distributions$Income_norm)
+summary(exp.-i]
+    x.out <distributions$Income_norm)
 plot(density(income.distributions$Income_norm))
 
-# Plot the other data using
-
-boxplot(income.distributions$Income_tail)
-hist(income.distributions$Income_tail)
-plot(density(income.distributions$Income_tail))
-
-boxplot(income.distributions$Income_bimodal)
-hist(income.distributions$Income_bimodal)
-plot(density(income.distributions$Income_bimodal, bw = 2000))
-
-
-#######################################################################
+# Plot the other #################################################
 
 # EXAMPLE
 # Outlier Detection - K Means
@@ -161,19 +21,7 @@ exp.km <- kmeans(expenses.cluster, 4)
 
 # Plot the clusters and the centre of the clusters
 plot(expenses.cluster, col = exp.km$cluster)
-points(exp.km$centers, col = 1:4, pch = 8, cex = 2)
-
-# Calculate the residual
-resid <- expenses.cluster - fitted(exp.km)
-resid <- scale(resid)
-
-# Calculate the Euclidian distance from the centroids
-distance.k <- sqrt((resid[,1])**2 + (resid[,2])**2)
-
-# Join the cluster labellings to our original data and order by the distance
-# descending
-exp.model <- cbind(expenses.cluster,exp.km$cluster,distance.k)
-exp.model[order(-distance.k),]
+points(exp.km$centers, col =
 
 # Plot the points with the residuals colour coded.
 plot(exp.model[,1:2], col=round(distance.k+1))
@@ -256,5 +104,4 @@ plot(G,vertex.size=3, vertex.label.dist=0.4, vertex.label.cex=ident.size*0.5, ve
 ident.col <- rep(1,194)
 ident.col[c(67,79,102)] <- 4
 ident.size <- rep(1,194)
-ident.size[c(67,79,102)] <- 4
-plot(G,vertex.size=3, vertex.label.dist=0.4, vertex.label.cex=ident.size*0.5, vertex.label.color=ident.col)
+ident.size[c(67,79,102=0.4, vertex.label.cex=ident.size*0.5, vertex.label.color=ident.col)
